@@ -1,0 +1,39 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+*.venv/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.code-workspace
+
+# Compiled Python files
+*.pyc
+*.pyo
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development files
+*.sqlite3
+
+# OS-specific files
+.DS_Store
+Thumbs.db
