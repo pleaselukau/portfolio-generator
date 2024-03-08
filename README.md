@@ -62,6 +62,3 @@ The Personal Portfolio Website Generator is a user-friendly Python app that enab
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
-
-Replace placeholders like `your-username` and `your-repository` with your actual GitHub username and repository name. Feel free to modify the content to better suit your project and provide any additional information you think users might find useful.
