@@ -170,10 +170,10 @@ def initialize_routes(app):
             return render_template('add_portfolio.html')
     
     # Add a route to handle creating a new portfolio page
-    @app.route('/create_portfolio/<int:nickname>')
+    @app.route('/portfolio/<int:portfolio_id>')
     @login_required
-    def create_portfolio(nickname):
-        portfolio = Portfolio.query.get_or_404(nickname)
+    def portfolio(portfolio_id):
+        portfolio = Portfolio.query.get_or_404(portfolio_id)
         return render_template('portfolio.html', user=current_user, portfolio=portfolio)
 
     # Add a route to handle adding a project to a portfolio
