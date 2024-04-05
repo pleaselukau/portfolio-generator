@@ -8,6 +8,14 @@
 </head>
 <body>
     <h1>Welcome, {{ user.username }}!</h1>
+    <h2>Your Portfolio</h2>
+    <div>
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Phone:</strong> {{ user.phone }}</p>
+    </div>
+    <div>
     <h2>Your Portfolios</h2>
     <ul>
         {% for portfolio in user.portfolios %}
@@ -15,6 +23,7 @@
         {% endfor %}
     </ul>
     <a href="{{ url_for('add_portfolio') }}">Add Portfolio</a>
+    </div>
     <div>
         <a href="/logout">Logout</a>
     </div>

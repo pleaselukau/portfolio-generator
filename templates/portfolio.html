@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ portfolio.nickname }} - Portfolio</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>{{ portfolio.nickname }}</h1>
+    
+    <div>
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> {{ user.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Phone:</strong> {{ user.phone }}</p>
+    </div>
+    
+    <div>
+        <h2>Education</h2>
+        <p><strong>School/University:</strong> {{ portfolio.education_school }}</p>
+        <p><strong>Degree:</strong> {{ portfolio.education_degree }}</p>
+        <p><strong>Major:</strong> {{ portfolio.education_major }}</p>
+        <p><strong>Year of Graduation:</strong> {{ portfolio.education_year }}</p>
+    </div>
+    
+    <div>
+        <h2>Work Experience</h2>
+        <p><strong>Company:</strong> {{ portfolio.work_company }}</p>
+        <p><strong>Position:</strong> {{ portfolio.work_position }}</p>
+        <p><strong>Duration:</strong> {{ portfolio.work_duration }}</p>
+        <p><strong>Description:</strong> {{ portfolio.work_description }}</p>
+    </div>
+    
+    <div>
+        <h2>Your Projects</h2>
+        <ul id="project-list">
+            {% for project in portfolio.projects %}
+                <li>{{ project.title }}</li>
+                <li>{{ project.url }}</li>
+                <p>{{ project.description }}</p>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <div>
+        <h2>Add New Project</h2>
+        <form id="add-project-form">
+            <input type="hidden" id="portfolio_id" name="portfolio_id" value="{{ portfolio.id }}">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required><br>
+            <label for="url">Project URL:</label>
+            <input type="url" id="url" name="url" required><br>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea><br>
+            <button type="submit">Add Project</button>
+        </form>
+    </div>
+    
+    <div>
+        <a href="/logout">Logout</a>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            $('#add-project-form').submit(function(event) {
+                event.preventDefault(); // Prevent the default form submission
+                var formData = $(this).serialize(); // Serialize form data
+                $.ajax({
+                    type: 'POST',
+                    url: '/add_project',
+                    data: formData,
+                    success: function(response) {
+                        // Append the newly added project to the project list
+                        $('#project-list').append('<li>' + response.title + '</li> <li>' + response.url + '</li><p>'+ response.description + '</p>');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

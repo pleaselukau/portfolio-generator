@@ -133,9 +133,9 @@ def initialize_routes(app):
     def add_portfolio():
         if request.method == 'POST':
             user = current_user
-            full_name = request.form['full_name']
-            email = request.form['email']
-            phone = request.form['phone']
+            # full_name = user.full_name
+            # email = user.email
+            # phone = user.phone
             bio = request.form['bio']
             education_degree = request.form['education_degree']
             education_major = request.form['education_major']
@@ -149,9 +149,9 @@ def initialize_routes(app):
             new_portfolio = Portfolio(
                 user=user,
                 nickname=nickname,
-                full_name=full_name,
-                email=email,
-                phone=phone,
+                # full_name=full_name,
+                # email=email,
+                # phone=phone,
                 bio=bio,
                 education_degree=education_degree,
                 education_major=education_major,
@@ -168,6 +168,28 @@ def initialize_routes(app):
             return redirect(url_for('dashboard'))
         else:
             return render_template('add_portfolio.html')
+    
+    # Add a route to handle creating a new portfolio page
+    @app.route('/create_portfolio/<int:nickname>')
+    @login_required
+    def create_portfolio(nickname):
+        portfolio = Portfolio.query.get_or_404(nickname)
+        return render_template('portfolio.html', user=current_user, portfolio=portfolio)
+
+    # Add a route to handle adding a project to a portfolio
+    @app.route('/add_project', methods=['POST'])
+    @login_required
+    def add_project():
+        title = request.form['title']
+        url = request.form['url']
+        description = request.form['description']
+        nickname = request.form['nickname']
+        portfolio = Portfolio.query.get_or_404(nickname)
+        new_project = Project(title=title, url=url, description=description, portfolio=portfolio)
+        db.session.add(new_project)
+        db.session.commit()
+        return jsonify({'title': title, 'url': url, 'description': description}), 200
+
 
 # Main function to create and run the app
 if __name__ == '__main__':
