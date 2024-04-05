@@ -1,7 +1,8 @@
+# app.py
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
-
 
 # Initialize Flask app
 def create_app():
@@ -20,19 +21,21 @@ def initialize_login(app):
 def initialize_database(app):
     db = SQLAlchemy(app)
     return db
+
 app = create_app()
 login_manager = initialize_login(app)
 db = initialize_database(app)
+
 # Database models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    portfolio = db.relationship('Portfolio', backref='user', uselist=False)
 
 class Portfolio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('portfolio', lazy=True))
     bio = db.Column(db.Text)
     education_degree = db.Column(db.String(100))
     education_major = db.Column(db.String(100))
@@ -43,7 +46,6 @@ class Portfolio(db.Model):
     work_duration = db.Column(db.String(50))
     work_description = db.Column(db.Text)
     projects = db.relationship('Project', backref='portfolio', lazy=True)
-
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -90,9 +92,22 @@ def initialize_routes(app):
             if existing_user:
                 flash('Username already exists', 'error')
                 return redirect(url_for('index'))
-            # Create new user
+            # Create new user and portfolio
             new_user = User(username=username, password=password)
+            new_portfolio = Portfolio(
+                user=new_user,
+                bio=bio,
+                education_degree=education_degree,
+                education_major=education_major,
+                education_school=education_school,
+                education_year=education_year,
+                work_position=work_position,
+                work_company=work_company,
+                work_duration=work_duration,
+                work_description=work_description
+            )
             db.session.add(new_user)
+            db.session.add(new_portfolio)
             db.session.commit()
             flash('Account created successfully', 'success')
             # Redirect to index after successful signup
@@ -125,7 +140,6 @@ def initialize_routes(app):
         user = current_user
         portfolio = Portfolio.query.filter_by(user_id=user.id).first()
         return render_template('dashboard.html', user=user, portfolio=portfolio)
-
 
 # Main function to create and run the app
 if __name__ == '__main__':

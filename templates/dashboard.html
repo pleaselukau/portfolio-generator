@@ -9,11 +9,30 @@
     <h1>Welcome, {{ user.username }}!</h1>
     <h2>Your Portfolio</h2>
     <div>
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> {{ user.portfolio.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.portfolio.email }}</p>
+        <p><strong>Phone:</strong> {{ user.portfolio.phone }}</p>
+        
         <h3>Bio</h3>
         <p>{{ user.portfolio.bio }}</p>
+        <hr>
     </div>
     <div>
-        <h3>Your Projects</h3>
+        <h2>Education</h2>
+        <p><strong>School/University:</strong> {{ user.portfolio.education_school }}</p>
+        <p><strong>Degree:</strong> {{ user.portfolio.education_degree }}</p>
+        <p><strong>Major:</strong> {{ user.portfolio.education_major }}</p>
+        <p><strong>Year of Graduation:</strong> {{ user.portfolio.education_year }}</p>
+        <hr>
+        <h2>Work Experience</h2>
+        <p><strong>Company:</strong> {{ user.portfolio.work_company }}</p>
+        <p><strong>Position:</strong> {{ user.portfolio.work_position }}</p>
+        <p><strong>Duration:</strong> {{ user.portfolio.work_duration }}</p>
+        <p><strong>Description:</strong> {{ user.portfolio.work_description }}</p>
+    </div>
+    <div>
+        <h2>Your Projects</h2>
         <ul>
             {% for project in user.portfolio.projects %}
                 <li>{{ project.title }}</li>
