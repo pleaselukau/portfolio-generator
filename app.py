@@ -30,14 +30,15 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
-    portfolio = db.relationship('Portfolio', backref='user', uselist=False)
+    full_name = db.Column(db.String(50))
+    email = db.Column(db.String(100))
+    phone = db.Column(db.Integer)
+    portfolios = db.relationship('Portfolio', backref='user', lazy=True)
 
 class Portfolio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # full_name = db.Column(db.String(50))
-    # email = db.Column(db.String(100))
-    # phone = db.Column(db.Integer)
+    nickname = db.Column(db.String(100))
     bio = db.Column(db.Text)
     education_degree = db.Column(db.String(100))
     education_major = db.Column(db.String(100))
@@ -77,42 +78,24 @@ def initialize_routes(app):
             full_name = request.form['full_name']
             email = request.form['email']
             phone = request.form['phone']
-            bio = request.form['bio']
-            education_degree = request.form['education_degree']
-            education_major = request.form['education_major']
-            education_school = request.form['education_school']
-            education_year = request.form['education_year']
-            work_position = request.form['work_position']
-            work_company = request.form['work_company']
-            work_duration = request.form['work_duration']
-            work_description = request.form['work_description']
             # Check if passwords match and username is unique
             if password != confirm_password:
                 flash('Passwords do not match', 'error')
-                return redirect(url_for('index'))
+                return redirect(url_for('signup'))
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
                 flash('Username already exists', 'error')
-                return redirect(url_for('index'))
+                return redirect(url_for('signup'))
             # Create new user and portfolio
-            new_user = User(username=username, password=password)
-            new_portfolio = Portfolio(
-                user=new_user,
-                full_name=full_name,
-                email=email,
-                phone=phone,
-                bio=bio,
-                education_degree=education_degree,
-                education_major=education_major,
-                education_school=education_school,
-                education_year=education_year,
-                work_position=work_position,
-                work_company=work_company,
-                work_duration=work_duration,
-                work_description=work_description
-            )
+            new_user = User(username=username, password=password, full_name=full_name, email=email,phone=phone)
+            # new_portfolio = Portfolio(
+            #     user=new_user,
+            #     full_name=full_name,
+            #     email=email,
+            #     phone=phone
+            # )
             db.session.add(new_user)
-            db.session.add(new_portfolio)
+            # db.session.add(new_portfolio)
             db.session.commit()
             flash('Account created successfully', 'success')
             # Redirect to index after successful signup
@@ -143,21 +126,48 @@ def initialize_routes(app):
     @login_required
     def dashboard():
         user = current_user
-        portfolio = Portfolio.query.filter_by(user_id=user.id).first()
-        return render_template('dashboard.html', user=user, portfolio=portfolio)
+        return render_template('dashboard.html', user=user)
 
-    @app.route('/add_project', methods=['POST'])
+    @app.route('/add_portfolio', methods=['GET', 'POST'])
     @login_required
-    def add_project():
-        user = current_user
-        portfolio = Portfolio.query.filter_by(user_id=user.id).first()
-        title = request.form['title']
-        url = request.form['url']
-        description = request.form['description']
-        new_project = Project(portfolio_id=portfolio.id, title=title, url=url, description=description)
-        db.session.add(new_project)
-        db.session.commit()
-        return jsonify({'title': title, 'description': description})
+    def add_portfolio():
+        if request.method == 'POST':
+            user = current_user
+            full_name = request.form['full_name']
+            email = request.form['email']
+            phone = request.form['phone']
+            bio = request.form['bio']
+            education_degree = request.form['education_degree']
+            education_major = request.form['education_major']
+            education_school = request.form['education_school']
+            education_year = request.form['education_year']
+            work_position = request.form['work_position']
+            work_company = request.form['work_company']
+            work_duration = request.form['work_duration']
+            work_description = request.form['work_description']
+            nickname = request.form['nickname']
+            new_portfolio = Portfolio(
+                user=user,
+                nickname=nickname,
+                full_name=full_name,
+                email=email,
+                phone=phone,
+                bio=bio,
+                education_degree=education_degree,
+                education_major=education_major,
+                education_school=education_school,
+                education_year=education_year,
+                work_position=work_position,
+                work_company=work_company,
+                work_duration=work_duration,
+                work_description=work_description
+            )
+            db.session.add(new_portfolio)
+            db.session.commit()
+            flash('Portfolio created successfully', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template('add_portfolio.html')
 
 # Main function to create and run the app
 if __name__ == '__main__':
