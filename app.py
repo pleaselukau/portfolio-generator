@@ -1,6 +1,5 @@
 # app.py
-
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 
@@ -36,6 +35,9 @@ class User(UserMixin, db.Model):
 class Portfolio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # full_name = db.Column(db.String(50))
+    # email = db.Column(db.String(100))
+    # phone = db.Column(db.Integer)
     bio = db.Column(db.Text)
     education_degree = db.Column(db.String(100))
     education_major = db.Column(db.String(100))
@@ -52,7 +54,7 @@ class Project(db.Model):
     portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    image_url = db.Column(db.String(200))
+    url = db.Column(db.String(200))
 
 # Login manager callback to reload user object
 @login_manager.user_loader
@@ -84,7 +86,7 @@ def initialize_routes(app):
             work_company = request.form['work_company']
             work_duration = request.form['work_duration']
             work_description = request.form['work_description']
-            #Check if passwords match and username is unique
+            # Check if passwords match and username is unique
             if password != confirm_password:
                 flash('Passwords do not match', 'error')
                 return redirect(url_for('index'))
@@ -96,6 +98,9 @@ def initialize_routes(app):
             new_user = User(username=username, password=password)
             new_portfolio = Portfolio(
                 user=new_user,
+                full_name=full_name,
+                email=email,
+                phone=phone,
                 bio=bio,
                 education_degree=education_degree,
                 education_major=education_major,
@@ -140,6 +145,19 @@ def initialize_routes(app):
         user = current_user
         portfolio = Portfolio.query.filter_by(user_id=user.id).first()
         return render_template('dashboard.html', user=user, portfolio=portfolio)
+
+    @app.route('/add_project', methods=['POST'])
+    @login_required
+    def add_project():
+        user = current_user
+        portfolio = Portfolio.query.filter_by(user_id=user.id).first()
+        title = request.form['title']
+        url = request.form['url']
+        description = request.form['description']
+        new_project = Project(portfolio_id=portfolio.id, title=title, url=url, description=description)
+        db.session.add(new_project)
+        db.session.commit()
+        return jsonify({'title': title, 'description': description})
 
 # Main function to create and run the app
 if __name__ == '__main__':
